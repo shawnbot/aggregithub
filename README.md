@@ -9,6 +9,10 @@ Options:
   --token  your GitHub API access token (default: process.env.GITHUB_AUTH_TOKEN)
 ```
 
+**Note:** you *will* run into [GitHub API rate limits](https://developer.github.com/v3/rate_limit/)
+if you don't provide the `--token` option or set the `GITHUB_AUTH_TOKEN`
+environment variable.
+
 ## Examples
 
 Get commit totals for a user's repos:
