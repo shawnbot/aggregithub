@@ -13,6 +13,20 @@ Options:
 if you don't provide the `--token` option or set the `GITHUB_AUTH_TOKEN`
 environment variable.
 
+
+## Examples
+
+Get commit totals for a user's repos:
+```
+aggregithub users/shawnbot commits total > shawnbot-commits.json
+```
+
+Get daily and weekly commit totals for an organization:
+```
+aggregithub orgs/18F commits > shawnbot-commits.json
+```
+
+
 ## Available Statistics
 
 ### `commits`
@@ -20,17 +34,3 @@ Uses the [commit activity API](https://developer.github.com/v3/repos/statistics/
 to get total, daily and weekly commit counts *within the last year*.
 
 ### More coming soon!
-
-## Examples
-
-Get commit totals for a user's repos:
-
-```
-aggregithub users/shawnbot commits total > shawnbot-commits.json
-```
-
-Get daily and weekly commit totals for an organization:
-
-```
-aggregithub orgs/18F commits > shawnbot-commits.json
-```
