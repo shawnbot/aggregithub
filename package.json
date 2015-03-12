@@ -15,6 +15,10 @@
     "statistics"
   ],
   "author": "Shawn Allen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shawnbot/aggregithub.git"
+  },
   "license": "CC0",
   "dependencies": {
     "async": "^0.9.0",
