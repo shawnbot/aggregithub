@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "aggregate github statistics",
   "main": "index.js",
+  "bin": {
+    "aggregithub": "cli.js"
+  },
   "scripts": {
     "test": "mocha"
   },
