@@ -13,6 +13,14 @@ Options:
 if you don't provide the `--token` option or set the `GITHUB_AUTH_TOKEN`
 environment variable.
 
+## Available Statistics
+
+### `commits`
+Uses the [commit activity API](https://developer.github.com/v3/repos/statistics/#commit-activity)
+to get total, daily and weekly commit counts *within the last year*.
+
+### More coming soon!
+
 ## Examples
 
 Get commit totals for a user's repos:
