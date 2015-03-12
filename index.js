@@ -57,7 +57,6 @@ function client() {
       }
       var bits = path.split('/'),
           pattern;
-      // console.warn('bits:', bits);
       switch (bits.length) {
         case 1:
           path = 'users/' + path;
@@ -103,7 +102,7 @@ function client() {
       client.get(uri, {
         owner: repo.owner.login,
         repo: repo.name,
-        stat: type
+        stat: client.stats[type].stat || type
       }, function(error, status, stats, headers) {
         if (error) return done(error);
         if (!repo.stats) repo.stats = {};
