@@ -1,0 +1,25 @@
+{
+  "name": "aggregithub",
+  "version": "1.0.0",
+  "description": "aggregate github statistics",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "github",
+    "aggregate",
+    "statistics"
+  ],
+  "author": "Shawn Allen",
+  "license": "CC0",
+  "dependencies": {
+    "async": "^0.9.0",
+    "curry": "^1.2.0",
+    "minimatch": "^2.0.3",
+    "moment": "^2.9.0",
+    "octonode": "^0.6.15",
+    "parse-link-header": "^0.2.0",
+    "yargs": "^3.5.3"
+  }
+}
