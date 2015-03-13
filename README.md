@@ -1,14 +1,14 @@
 # aggregithub
 Aggregate your GitHub statistics for fun and profit!
 
-## Installation
+### Installation
 Install with [npm](http://npmjs.com/):
 
 ```sh
 npm install -g aggregithub
 ```
 
-## Usage
+### Usage
 `aggregithub` is a command-line tool that generates JSON on [standard output](http://en.wikipedia.org/wiki/Standard_streams#Standard_output_.28stdout.29):
 
 ```
@@ -29,7 +29,7 @@ export GITHUB_AUTH_TOKEN="your-super-secret-token"
 
 You should also considering putting this in a `.env` file and using [autoenv](https://github.com/kennethreitz/autoenv) to have it sourced whenever you enter the directory that contains it. However you decide to do it, **remember to back up your token somewhere safe**, because you won't be able to get it from GitHub again.
 
-## Examples
+### Examples
 
 Get commit totals for a user's repos:
 ```sh
@@ -42,10 +42,10 @@ aggregithub orgs/18F commits > 18F-commits.json
 ```
 
 
-## Available Statistics
+### Available Statistics
 
-### `commits`
+#### `commits`
 Uses the [commit activity API](https://developer.github.com/v3/repos/statistics/#commit-activity)
-to get total, daily and weekly commit counts *within the last year*.
+to get total, daily and weekly commit counts **within the last year**.
 
 ### More coming soon!
