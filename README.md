@@ -23,7 +23,7 @@ aggregithub users/shawnbot commits total > shawnbot-commits.json
 
 Get daily and weekly commit totals for an organization:
 ```
-aggregithub orgs/18F commits > shawnbot-commits.json
+aggregithub orgs/18F commits > 18F-commits.json
 ```
 
 
