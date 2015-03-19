@@ -5,11 +5,14 @@ var octonode = require('octonode'),
     async = require('async'),
     minimatch = require('minimatch'),
     parseLinks = require('parse-link-header'),
-    stats = require('./lib/stats');
+    extend = require('extend'),
+    stats = require('./lib/stats'),
+    sort = require('./lib/sort');
 
 module.exports = {
   client: client,
-  stats: stats
+  stats: stats,
+  expand: expand
 };
 
 function client() {
@@ -17,16 +20,16 @@ function client() {
       get = client.get.bind(client);
 
   client.get = curry(function(uri, params, done) {
-    uri = expand(uri, params);
-    return get(uri, uri.params, done);
+    var data = expand(uri, params);
+    return get(data.uri, data.params, done);
   });
 
   client.getAll = curry(function(uri, params, done) {
     params.page = 1;
-
     var data = [],
+        last = '?',
         next = function() {
-          console.warn('getting page:', params.page, uri, params);
+          log('get: %s (page %d of %s)', uri, params.page, last, JSON.stringify(params));
           return client.get(uri, params, handler);
         },
         handler = function(error, status, page, headers) {
@@ -36,10 +39,15 @@ function client() {
             return done('expected array; got ' + typeof page);
           }
 
+          if (!page.length) {
+            log('nothing in this page:', params.page);
+            return done(null, data);
+          }
           data = data.concat(page);
           var links = parseLinks(headers.link);
-          if (links.next && links.next.page > params.page) {
-            params.page++;
+          if (links && links.next) {
+            last = links.last ? links.last.page : '?';
+            params.page = +links.next.page;
             return next();
           } else {
             return done(null, data);
@@ -49,14 +57,15 @@ function client() {
     return next();
   });
 
-  client.matchRepos = curry(function(repos, pattern, done) {
+  client.matchRepos = curry(function(repos, options, done) {
+    var include = options.include;
+
     if (typeof repos === 'string') {
       var path = repos;
       if (path.charAt(0) === '/') {
         path = path.substr(1);
       }
-      var bits = path.split('/'),
-          pattern;
+      var bits = path.split('/');
       switch (bits.length) {
         case 1:
           path = 'users/' + path;
@@ -65,23 +74,39 @@ function client() {
           break;
         case 3:
           path = bits.slice(0, -1).join('/');
-          pattern = bits[2];
+          include = bits[2];
           break;
       }
-      repos = client.getAll('/' + path + '/repos', {});
+      repos = client.getAll('/' + path + '/repos', {per_page: 100});
     }
 
-    var test = (pattern && pattern !== '*')
-      ? function(repo) { return minimatch(repo.name, pattern); }
+    var test = (include && include !== '*')
+      ? function(repo) {
+        log("minimatch('%s', '%s')", repo.name, include);
+        return minimatch(repo.name, include);
+      }
       : function() { return true; };
+
+    if (options.exclude) {
+      var exclude = options.exclude,
+          _test = test;
+      test = function(repo) {
+        return _test(repo) && !minimatch(repo.name, exclude);
+      };
+    }
 
     switch (typeof repos) {
       case 'function':
         return async.waterfall([
           repos,
           function (repos, next) {
-            console.warn('got %d repos', repos.length);
-            next(null, repos.filter(test));
+            log('matching %d repos against', repos.length, options);
+            repos.sort(function(a, b) {
+              return sort.ascending(a.name, b.name);
+            });
+            var filtered = repos.filter(test);
+            log('got %d matches: %s', filtered.length, filtered.map(function(d) { return d.name; }).join(', '));
+            next(null, filtered);
           }
         ], done);
 
@@ -92,18 +117,17 @@ function client() {
 
   client.stats = stats;
 
-  client.aggregate = curry(function(type, args, repos, done) {
-    if (!client.stats[type]) {
+  client.aggregate = curry(function(type, options, args, repos, done) {
+    var agg = client.stats[type];
+    if (!agg) {
       return done('no such aggregate statistic: ' + type);
     }
-    var uri = '/repos/:owner/:repo/stats/:stat';
-    async.mapLimit(repos, args.limit || 10, function(repo, next) {
-      console.warn('getting stats for %s/%s', repo.owner.login, repo.name);
-      client.get(uri, {
-        owner: repo.owner.login,
-        repo: repo.name,
-        stat: client.stats[type].stat || type
-      }, function(error, status, stats, headers) {
+    var limit = 10; // +options.parallel || 1;
+    log('getting %s stats for %d repo(s)...', type, repos.length);
+
+    async.mapLimit(repos, limit, function(repo, next) {
+      log('getting %s stats for %s/%s', type, repo.owner.login, repo.name);
+      agg.fetch(client, repo, args, function(error, stats) {
         if (error) return done(error);
         if (!repo.stats) repo.stats = {};
         repo.stats[type] = stats;
@@ -116,16 +140,27 @@ function client() {
     });
   });
 
+  client.debug = false;
+
+  function log() {
+    if (!client.debug) return;
+    console.warn.apply(console, arguments);
+  }
+
+  client.log = log;
+
   return client;
 }
 
 function expand(uri, params) {
-  params = Object.create(params);
+  params = extend({}, params);
+  for (var key in params) {
+    if (!params[key]) delete params[key];
+  }
   uri = uri.replace(/:(\w+)/g, function(_, key) {
     var value = params[key];
     delete params[key];
     return value;
   });
-  uri.params = params;
-  return uri;
+  return {uri: uri, params: params};
 }
