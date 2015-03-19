@@ -1,6 +1,6 @@
 {
   "name": "aggregithub",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "aggregate github statistics",
   "main": "index.js",
   "bin": {
