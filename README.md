@@ -15,12 +15,15 @@ npm install -g aggregithub
 aggregithub [options] <repos> <aggregate type> [aggregate options]
 
 Options:
-  -g       only match repo names with this glob-like pattern
-  --token  your GitHub API access token (default: process.env.GITHUB_AUTH_TOKEN)
+  --auth          your GitHub API access token (default: process.env.GITHUB_AUTH_TOKEN)
+                  or credentials in the form "username:password"
+  --include, -i   only include repo names with this glob-like pattern
+  --exclude, -e   exclude repos matching this glob-like pattern
+  --parallel, -p  do this many API requests in parallel [default: 10]
 ```
 
 **Note:** you will very likely run into [GitHub API rate limits](https://developer.github.com/v3/rate_limit/)
-if you don't provide the `--token` option or set the `GITHUB_AUTH_TOKEN`
+if you don't provide the `--auth` option or set the `GITHUB_AUTH_TOKEN`
  [environment variable](http://en.wikipedia.org/wiki/Environment_variable). You can get a personal access token on [your GitHub settings page](https://github.com/settings/applications), then export it like so:
 
 ```sh
@@ -44,8 +47,38 @@ aggregithub orgs/18F commits > 18F-commits.json
 
 ### Available Statistics
 
-#### `commits`
+#### `commits [rollup types]`
 Uses the [commit activity API](https://developer.github.com/v3/repos/statistics/#commit-activity)
-to get total, daily and weekly commit counts **within the last year**.
+to get total, daily and weekly commit counts **within the last year**. Rollup types are any of the following:
 
-### More coming soon!
+* `total`: the total number of commits
+* `weekly`: weekly rollups as an object with keys in the form `YYYY-MM-DD`
+* `daily`: daily rollups as an object with keys in the form `YYYY-MM-DD`
+
+For instance:
+
+```sh
+$ aggregithub users/username commits total
+{
+  "total": 520
+}
+```
+
+#### `issues [event types]`
+Looks at all of the [issue events](https://developer.github.com/v3/issues/events/#list-events-for-a-repository) for one or more repositories and rolls up the number of events by type. If no event types are provided, the default is to list `opened` and `closed` events. Examples:
+
+```sh
+# just list opened and closed
+$ aggregithub users/username issues
+{
+  "opened": 200,
+  "closed": 100
+}
+# list opened, closed and PRs merged
+$ aggregithub users/username issues opened closed merged
+{
+  "opened": 200,
+  "closed": 100,
+  "merged": 50
+}
+```
