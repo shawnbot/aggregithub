@@ -10,9 +10,9 @@ var octonode = require('octonode'),
     sort = require('./lib/sort');
 
 module.exports = {
+  version: require('./package.json').version,
   client: client,
-  stats: stats,
-  expand: expand
+  stats: stats
 };
 
 function client() {
