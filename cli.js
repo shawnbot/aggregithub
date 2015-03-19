@@ -12,6 +12,9 @@ var async = require('async'),
       .describe('parallel', 'do this many API requests in parallel')
         .default('parallel', 10)
         .alias('parallel', 'p')
+      .describe('verbose', 'print helpful status messages to stderr')
+        .boolean('verbose')
+        .alias('verbose', 'v')
       .alias('h', 'help'),
     options = yargs.argv,
     auth = options.auth || process.env.GITHUB_AUTH_TOKEN,
@@ -35,7 +38,7 @@ main(function(error, data) {
 
 function main(done) {
   var match;
-  if (match = auth.match(/^(\w+):(.+)$/)) {
+  if (match = auth && auth.match(/^(\w+):(.+)$/)) {
     auth = {
       username: match[1],
       password: match[2]
